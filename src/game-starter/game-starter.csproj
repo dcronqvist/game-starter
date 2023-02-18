@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <RootNamespace>GameStarter</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>preview</LangVersion>
+    <ApplicationIcon>..\..\static\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'WINDOWS_NT'">
+    <DefineConstants>_WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(OS)' == 'OSX'">
+    <DefineConstants>_OSX</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(OS)' == 'WINDOWS_NT'">
+    <LibDLLs Include="$(ProjectDir)..\..\libs\win64\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(OS)' == 'OSX'">
+    <LibDLLs Include="$(ProjectDir)..\..\libs\osx\**\*.*" />
+  </ItemGroup>
+
+  <Target Name="CopyLibDLLs" AfterTargets="Build">
+    <Message Text="Copying libs to output directory..." Importance="High" />
+
+    <Copy SourceFiles="@(LibDLLs)" DestinationFolder="$(OutDir)" />
+  </Target>
+
+</Project>
