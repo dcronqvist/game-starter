@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Numerics;
+using GameStarter.Debugging;
 using GameStarter.Display.GLFW;
 using static GameStarter.Display.GL;
 
@@ -116,8 +117,18 @@ public static class DisplayManager
         {
             Icon icon = Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var iconBitmap = icon.ToBitmap();
-            var pixelData = iconBitmap.LockBits(new Rectangle(0, 0, iconBitmap.Width, iconBitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GLFW.Image image = new GLFW.Image(iconBitmap.Width, iconBitmap.Height, (nint)pixelData.Scan0.ToPointer());
+            var pixelData = iconBitmap.LockBits(new Rectangle(0, 0, iconBitmap.Width, iconBitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, iconBitmap.PixelFormat);
+
+            // Reverse the color channels
+            for (int i = 0; i < pixelData.Stride * pixelData.Height; i += 4)
+            {
+                byte r = *(byte*)(pixelData.Scan0 + i);
+                byte b = *(byte*)(pixelData.Scan0 + i + 2);
+                *(byte*)(pixelData.Scan0 + i) = b;
+                *(byte*)(pixelData.Scan0 + i + 2) = r;
+            }
+
+            GLFW.Image image = new GLFW.Image(iconBitmap.Width, iconBitmap.Height, (nint)pixelData.Scan0);
             Glfw.SetWindowIcon(WindowHandle, 1, new GLFW.Image[] { image });
         }
 
@@ -125,14 +136,14 @@ public static class DisplayManager
         {
             Vector2 windowSize = GetWindowSizeInPixels();
             OnFramebufferResize?.Invoke(null, windowSize);
-            //Logging.Log(LogLevel.Info, $"Window size changed to {windowSize.X}x{windowSize.Y} because of {(maximized ? "maximization" : "minimization")}");
+            Logging.Log(LogLevel.Info, $"Window size changed to {windowSize.X}x{windowSize.Y} because of {(maximized ? "maximization" : "minimization")}");
             OnToggleFullscreen?.Invoke(null, maximized);
         });
 
         Glfw.SetFramebufferSizeCallback(WindowHandle, (Window, w, h) =>
         {
             OnFramebufferResize?.Invoke(null, new Vector2(w, h));
-            //Logging.Log(LogLevel.Info, $"Framebuffer size changed to {w}x{h}");
+            Logging.Log(LogLevel.Info, $"Framebuffer size changed to {w}x{h}");
         });
 
         GL.glEnable(GL_DEBUG_OUTPUT);

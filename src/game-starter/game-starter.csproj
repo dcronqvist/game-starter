@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputType>Exe</OutputType>
+    <!-- Other properties go here -->
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <OutputType>WinExe</OutputType>
+    <!-- Other properties go here -->
+  </PropertyGroup>
+
+  <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>GameStarter</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -31,8 +39,17 @@
 
   <Target Name="CopyLibDLLs" AfterTargets="Build">
     <Message Text="Copying libs to output directory..." Importance="High" />
-
     <Copy SourceFiles="@(LibDLLs)" DestinationFolder="$(OutDir)" />
+  </Target>
+
+  <Target Name="CreateICO" BeforeTargets="BeforeBuild">
+    <Message Text="Creating icon..." Importance="High" />
+    <Exec Command="powershell.exe -NonInteractive -executionpolicy Unrestricted -command &quot;&amp; { ..\..\.utils\pngtoico.ps1 ..\..\static\icon.png ..\..\static\icon.ico }&quot;" />
+  </Target>
+
+  <Target Name="CleanICO" AfterTargets="AfterBuild">
+    <Message Text="Cleaning icon..." Importance="High" />
+    <Delete Files="..\..\static\icon.ico" />
   </Target>
 
 </Project>
