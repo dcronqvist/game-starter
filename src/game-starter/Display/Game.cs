@@ -21,6 +21,9 @@ abstract class Game
 
         LoadContent(args);
 
+        Keyboard.Init();
+        Mouse.Init();
+
         GameTime.DeltaTime = 0;
         GameTime.TotalElapsedSeconds = 0;
 
@@ -32,6 +35,7 @@ abstract class Game
             DisplayManager.PollEvents();
 
             Keyboard.Begin();
+            Mouse.Begin();
 
             Update();
 
@@ -45,6 +49,7 @@ abstract class Game
             }
 
             Keyboard.End();
+            Mouse.End();
 
             if (DisplayManager.TargetFPS != 0)
             {

@@ -115,7 +115,7 @@ public static class DisplayManager
 
         if (OperatingSystem.IsWindows())
         {
-            Icon icon = Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            Icon icon = Icon.ExtractAssociatedIcon(Environment.ProcessPath);
             var iconBitmap = icon.ToBitmap();
             var pixelData = iconBitmap.LockBits(new Rectangle(0, 0, iconBitmap.Width, iconBitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, iconBitmap.PixelFormat);
 

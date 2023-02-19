@@ -15,17 +15,17 @@ class MainGame : Game
 
     }
 
+    public override void Update()
+    {
+
+    }
+
     public override void Render()
     {
         DisplayManager.SwapBuffers();
     }
 
     public override void Unload()
-    {
-
-    }
-
-    public override void Update()
     {
 
     }
