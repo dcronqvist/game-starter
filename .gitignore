@@ -5,6 +5,9 @@
 
 libs/
 
+.vscode/launch.json
+.vscode/tasks.json
+
 # User-specific files
 *.rsuser
 *.suo

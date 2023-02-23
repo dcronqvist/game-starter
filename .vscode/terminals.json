@@ -60,6 +60,19 @@
         "exit"
       ],
       "onlySingle": true
+    },
+    { // An object describing a terminal, most entries are optional
+      "name": "update submodules (wsl)", // The name of the terminal, it will be displayed in the dropdown
+      "description": "Updates submodules", // The description of the terminal
+      "icon": "github", // An icon to show next to the name
+      "color": "terminal.ansiGreen", // A themeable color, ref: https://code.visualstudio.com/api/references/theme-color
+      "cwd": "[cwd]", // A path for the current working directory to be used for the terminal
+      "shellPath": "wsl", // Path to a custom shell executable
+      "onlySingle": true,
+      "commands": [ // Multiple commands to run
+        "git submodule update --remote --merge",
+        "exit"
+      ]
     }
   ]
 }

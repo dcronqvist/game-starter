@@ -1,0 +1,12 @@
+{
+    "name": "crazymod",
+    "version": "0.0.1",
+    "title": "Crazy Mod",
+    "author": "dcronqvist",
+    "contact": "daniel@dcronqvist.se",
+    "description": "Crazy Mod by dcronqvist",
+    "homepage": "http://dcronqvist.se",
+    "dependencies": [
+        "resources"
+    ]
+}

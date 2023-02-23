@@ -1,0 +1,10 @@
+{
+    "name": "resources",
+    "version": "1.0",
+    "title": "Base Resources",
+    "author": "dcronqvist",
+    "contact": "daniel@dcronqvist.se",
+    "description": "The base resources for the game",
+    "homepage": "http://dcronqvist.se",
+    "dependencies": []
+}
