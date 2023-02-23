@@ -34,6 +34,11 @@
     <DefineConstants>_OSX</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup>
+    <GameResourcesFiles Include="..\..\resources\**\*.*" />
+    <GameModsFiles Include="..\..\mods\**\*.*" />
+  </ItemGroup>
+
   <ItemGroup Condition=" '$(OS)' == 'WINDOWS_NT'">
     <LibDLLs Include="$(ProjectDir)..\..\libs\win64\**\*.*" />
   </ItemGroup>
@@ -46,9 +51,15 @@
     <ProjectReference Include="..\..\modules\Symphony\Symphony\Symphony.csproj" />
   </ItemGroup>
 
-  <Target Name="CopyLibDLLs" AfterTargets="Build">
+  <Target Name="CopyDLLs" AfterTargets="Build">
     <Message Text="Copying libs to output directory..." Importance="High" />
     <Copy SourceFiles="@(LibDLLs)" DestinationFolder="$(OutDir)" />
+  </Target>
+
+  <Target Name="CopyResourcesAndModsRelease" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
+    <Message Text="Copying resources and mods to output directory..." Importance="High" />
+    <Copy SourceFiles="@(GameResourcesFiles)" DestinationFolder="$(OutDir)resources\%(RecursiveDir)" />
+    <Copy SourceFiles="@(GameModsFiles)" DestinationFolder="$(OutDir)mods\%(RecursiveDir)" />
   </Target>
 
   <Target Name="CreateICO" BeforeTargets="BeforeBuild">

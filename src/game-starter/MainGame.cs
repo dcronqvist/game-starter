@@ -17,8 +17,11 @@ namespace GameStarter;
 class MainGame : Game
 {
     public static ContentManager<ContentMeta> ContentManager { get; private set; }
+
+#pragma warning disable CS0414
     bool _finishedLoading = false;
     bool _contextAcquired = false;
+#pragma warning restore CS0414
 
     public override void Initialize(string[] args)
     {
@@ -31,7 +34,11 @@ class MainGame : Game
     {
         Logging.Log(LogLevel.Info, "Loading content...");
 
-        var basePath = @"C:\Users\RichieZ\repos\game-starter";
+#if DEBUG
+        var basePath = @"..\..\..\..\..\..";
+#elif RELEASE
+        var basePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+#endif
 
         Func<string, IContentSource> pathFactory = (string path) =>
         {
@@ -133,7 +140,7 @@ class MainGame : Game
         {
             this.InnerRender();
         });
-#else
+#elif RELEASE
         if (this._finishedLoading && !this._contextAcquired)
         {
             DisplayManager.AcquireGLContext();
