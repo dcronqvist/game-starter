@@ -1,0 +1,21 @@
+[2023-02-23 02:21:07 - INFO   ] Initializing...
+[2023-02-23 02:21:08 - INFO   ] Loading content...
+[2023-02-23 02:21:08 - INFO   ] Started loading content.
+[2023-02-23 02:21:08 - INFO   ] Loading content from 2 sources in the following order:
+[2023-02-23 02:21:08 - INFO   ]   resources
+[2023-02-23 02:21:08 - INFO   ]   crazymod
+[2023-02-23 02:21:08 - INFO   ] Started loading stage Shader Loading
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/shaders/framebuffer/fb_default.fs from resources
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/shaders/framebuffer/fb_default.vs from resources
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/shaders/textures/texture.fs from resources
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/shaders/textures/texture.vs from resources
+[2023-02-23 02:21:08 - INFO   ] Started loading stage Shader Program Creation
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/shaders/framebuffer/fb_default.shader from resources
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/shaders/textures/texture.shader from resources
+[2023-02-23 02:21:08 - INFO   ] Started loading stage Core Loading
+[2023-02-23 02:21:08 - INFO   ] Loaded resources:core/textures/bomb.png from crazymod
+[2023-02-23 02:21:08 - INFO   ] Started loading stage Normal Loading
+[2023-02-23 02:21:08 - INFO   ] Finished loading content.
+[2023-02-23 02:21:08 - DEBUG  ] All content loaded, can now acquire GL context forever.
+[2023-02-23 02:21:08 - INFO   ] Framebuffer size changed to 1281x721
+[2023-02-23 02:21:08 - INFO   ] Framebuffer size changed to 1280x720

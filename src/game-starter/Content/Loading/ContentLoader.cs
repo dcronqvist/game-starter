@@ -14,7 +14,7 @@ public class ContentLoader : IContentLoader<ContentMeta>
 
     public ContentLoader()
     {
-        // _loaders.Add(".png", new TextureLoader());
+        _loaders.Add(".png", new TextureLoader());
         _loaders.Add(".fs", new ShaderLoader());
         _loaders.Add(".vs", new ShaderLoader());
         _loaders.Add(".shader", new ShaderProgramLoader());
@@ -43,6 +43,9 @@ public class ContentLoader : IContentLoader<ContentMeta>
     {
         yield return new ShaderLoadingStage(_loaders, true, ".vs", ".fs");
         yield return new ShaderProgramLoadingStage(_loaders, true, ".shader");
+
+        yield return new CoreLoadingStage(_loaders, true, ".png");
+        yield return new NormalLoadingStage(_loaders, true, ".png");
     }
 
     public IEnumerable<IContentSource> GetSourceLoadOrder(IEnumerable<IContentSource> sources)

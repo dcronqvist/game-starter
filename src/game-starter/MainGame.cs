@@ -1,11 +1,16 @@
 using System;
 using System.IO;
+using System.Numerics;
 using System.Threading.Tasks;
 using GameStarter.Content.Loading;
 using GameStarter.Debugging;
 using GameStarter.Display;
+using GameStarter.Graphics;
+using GameStarter.Graphics.Rendering;
 using LogiX.Graphics;
+using LogiX.Rendering;
 using Symphony;
+using static GameStarter.Display.GL;
 
 namespace GameStarter;
 
@@ -94,10 +99,14 @@ class MainGame : Game
             Logging.Log(LogLevel.Error, $"Failed to load {e.Error}");
         };
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        TextureRenderer.InitGL();
+        Framebuffer.InitQuad();
+
         DisplayManager.ReleaseGLContext();
         _ = ContentManager.LoadAsync();
 
-        var shader = ContentManager.GetContentItem<ShaderProgram>("resources:texture.shader");
     }
 
     public override void Update()
@@ -107,7 +116,14 @@ class MainGame : Game
 
     public void InnerRender()
     {
-        DisplayManager.SwapBuffers();
+        Framebuffer.Clear(ColorF.BlueGray);
+
+        var shader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/textures/texture.shader");
+        var texture = ContentManager.GetContentItem<Texture2D>("resources:core/textures/bomb.png");
+
+        TextureRenderer.Render(shader, texture, DisplayManager.GetWindowSizeInPixels() / 2f - (texture.Size * 10f) / 2f, Vector2.One * 10f, GameTime.TotalElapsedSeconds, ColorF.White, new Vector2(0.5f, 0.5f), Framebuffer.GetDefaultCamera());
+
+        DisplayManager.SwapBuffers(-1);
     }
 
     public override void Render()

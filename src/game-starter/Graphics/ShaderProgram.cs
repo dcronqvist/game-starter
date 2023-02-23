@@ -278,24 +278,22 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
         glUniform4f(glGetUniformLocation(this.ProgramID, name), x, y, z, w);
     }
 
-    // TODO:
-    // public void SetMatrix4x4(string name, Matrix4x4 matrix)
-    // {
-    //     glUniformMatrix4fv(glGetUniformLocation(ProgramID, name), 1, false, Utilities.GetMatrix4x4Values(matrix));
-    // }
+    public void SetMatrix4x4(string name, Matrix4x4 matrix)
+    {
+        glUniformMatrix4fv(glGetUniformLocation(ProgramID, name), 1, false, Utilities.GetMatrix4x4Values(matrix));
+    }
 
     public void SetFloatArray(string name, float[] values)
     {
         glUniform1fv(glGetUniformLocation(ProgramID, name), values.Length, values);
     }
 
-    // TODO:
-    // public void SetTexture2D(int activeTexture, string name, Texture2D texture)
-    // {
-    //     glActiveTexture(GL_TEXTURE0 + activeTexture);
-    //     glBindTexture(GL_TEXTURE_2D, texture.GLID);
-    //     glUniform1i(glGetUniformLocation(ProgramID, name), activeTexture);
-    // }
+    public void SetTexture2D(int activeTexture, string name, Texture2D texture)
+    {
+        glActiveTexture(GL_TEXTURE0 + activeTexture);
+        glBindTexture(GL_TEXTURE_2D, texture.GLID);
+        glUniform1i(glGetUniformLocation(ProgramID, name), activeTexture);
+    }
 
     public void SetBool(string name, bool value)
     {
