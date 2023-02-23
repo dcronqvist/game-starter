@@ -116,7 +116,7 @@ class MainGame : Game
 
     public void InnerRender()
     {
-        Framebuffer.Clear(ColorF.BlueGray);
+        Framebuffer.Clear(ColorF.Darken(ColorF.CycleHue(GameTime.TotalElapsedSeconds * 30f), 0.5f));
 
         var shader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/textures/texture.shader");
         var texture = ContentManager.GetContentItem<Texture2D>("resources:core/textures/bomb.png");

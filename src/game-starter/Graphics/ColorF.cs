@@ -94,6 +94,18 @@ public struct ColorF
         return new ColorF(c.R * f, c.G * f, c.B * f, c.A);
     }
 
+    public static ColorF CycleHue(float hue)
+    {
+        hue = hue % 360;
+        if (hue < 0) hue += 360;
+        if (hue < 60) return new ColorF(1, hue / 60, 0, 1);
+        if (hue < 120) return new ColorF((120 - hue) / 60, 1, 0, 1);
+        if (hue < 180) return new ColorF(0, 1, (hue - 120) / 60, 1);
+        if (hue < 240) return new ColorF(0, (240 - hue) / 60, 1, 1);
+        if (hue < 300) return new ColorF((hue - 240) / 60, 0, 1, 1);
+        return new ColorF(1, 0, (360 - hue) / 60, 1);
+    }
+
     public static ColorF operator +(ColorF left, ColorF right)
     {
         return new ColorF(
