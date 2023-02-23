@@ -50,13 +50,13 @@ public abstract class BaseLoadingStage : IContentLoadingStage
         {
             if (result.Success)
             {
-                // if (result.Item is GLContentItem glItem && doGLInit)
-                // {
-                //     DisplayManager.LockedGLContext(() =>
-                //     {
-                //         glItem.InitGL(glItem.Content);
-                //     });
-                // }
+                if (result.Item is GLContentItem glItem && doGLInit)
+                {
+                    DisplayManager.LockedGLContext(() =>
+                    {
+                        glItem.InitGL(glItem.Content);
+                    });
+                }
             }
 
             yield return result;

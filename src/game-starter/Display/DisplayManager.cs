@@ -87,6 +87,12 @@ public static class DisplayManager
 
     public static void LockedGLContext(Action action)
     {
+        if (HasGLContext())
+        {
+            action();
+            return;
+        }
+
         lock (_glLock)
         {
             var oldContext = Glfw.CurrentContext;
@@ -146,7 +152,7 @@ public static class DisplayManager
             Logging.Log(LogLevel.Info, $"Framebuffer size changed to {w}x{h}");
         });
 
-        GL.glEnable(GL_DEBUG_OUTPUT);
+        //GL.glEnable(GL_DEBUG_OUTPUT);
 
         // GL.glDebugMessageCallback((source, type, id, severity, length, message, param) =>
         // {

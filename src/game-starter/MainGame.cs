@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using GameStarter.Content.Loading;
 using GameStarter.Debugging;
 using GameStarter.Display;
+using LogiX.Graphics;
 using Symphony;
 
 namespace GameStarter;
@@ -11,6 +12,8 @@ namespace GameStarter;
 class MainGame : Game
 {
     public static ContentManager<ContentMeta> ContentManager { get; private set; }
+    bool _finishedLoading = false;
+    bool _contextAcquired = false;
 
     public override void Initialize(string[] args)
     {
@@ -58,6 +61,7 @@ class MainGame : Game
         {
             Logging.Log(LogLevel.Info, "Finished loading content.");
 
+#if DEBUG   // Only apply hot reload in debug builds
             _ = Task.Run(async () =>
             {
                 while (true)
@@ -66,6 +70,13 @@ class MainGame : Game
                     await Task.Delay(1000);
                 }
             });
+#endif
+            this._finishedLoading = true;
+        };
+
+        ContentManager.StartedLoadingStage += (sender, e) =>
+        {
+            Logging.Log(LogLevel.Info, $"Started loading stage {e.Stage.StageName}");
         };
 
         ContentManager.ContentItemReloaded += (sender, e) =>
@@ -78,7 +89,15 @@ class MainGame : Game
             Logging.Log(LogLevel.Info, $"Loaded {e.Item.Identifier} from {loader.GetIdentifierForSource(e.ContentFrom)}");
         };
 
-        ContentManager.Load();
+        ContentManager.ContentFailedToLoadError += (sender, e) =>
+        {
+            Logging.Log(LogLevel.Error, $"Failed to load {e.Error}");
+        };
+
+        DisplayManager.ReleaseGLContext();
+        _ = ContentManager.LoadAsync();
+
+        var shader = ContentManager.GetContentItem<ShaderProgram>("resources:texture.shader");
     }
 
     public override void Update()
@@ -86,9 +105,38 @@ class MainGame : Game
 
     }
 
-    public override void Render()
+    public void InnerRender()
     {
         DisplayManager.SwapBuffers();
+    }
+
+    public override void Render()
+    {
+#if DEBUG
+        DisplayManager.LockedGLContext(() =>
+        {
+            this.InnerRender();
+        });
+#else
+        if (this._finishedLoading && !this._contextAcquired)
+        {
+            DisplayManager.AcquireGLContext();
+            this._contextAcquired = true;
+            Logging.Log(LogLevel.Debug, "All content loaded, can now acquire GL context forever.");
+        }
+
+        if (this._contextAcquired)
+        {
+            this.InnerRender();
+        }
+        else
+        {
+            DisplayManager.LockedGLContext(() =>
+            {
+                this.InnerRender();
+            });
+        }
+#endif
     }
 
     public override void Unload()

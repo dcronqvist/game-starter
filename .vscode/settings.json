@@ -11,4 +11,9 @@
         "**/obj": true
     },
     "explorer.compactFolders": false,
+    "files.associations": {
+        "*.shader": "jsonc",
+        "*.fs": "glsl",
+        "*.vs": "glsl",
+    }
 }

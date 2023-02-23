@@ -2,53 +2,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using GameStarter.Content.Loaders;
 using GameStarter.Debugging;
 using Symphony;
 
 namespace GameStarter.Content.Loading;
-
-public class TestItem : ContentItem<string>
-{
-    public TestItem(IContentSource source, string content) : base(source, content)
-    {
-    }
-
-    public override void Unload()
-    {
-
-    }
-
-    protected override void OnContentUpdated(string newContent)
-    {
-
-    }
-}
-
-public class TestLoadingStage : IContentLoadingStage
-{
-    public string StageName => "TEST";
-
-    public IEnumerable<ContentEntry> GetAffectedEntries(IEnumerable<ContentEntry> allEntries)
-    {
-        return allEntries.Where(entry => entry.EntryPath.EndsWith(".png"));
-    }
-
-    public void OnStageCompleted()
-    {
-
-    }
-
-    public void OnStageStarted()
-    {
-
-    }
-
-    public async IAsyncEnumerable<LoadEntryResult> TryLoadEntry(IContentSource source, IContentStructure structure, ContentEntry entry)
-    {
-        var identifier = Path.GetFileNameWithoutExtension(entry.EntryPath);
-        yield return await LoadEntryResult.CreateSuccessAsync(identifier, new TestItem(source, Path.GetFileName(entry.EntryPath)));
-    }
-}
 
 public class ContentLoader : IContentLoader<ContentMeta>
 {
@@ -56,7 +14,13 @@ public class ContentLoader : IContentLoader<ContentMeta>
 
     public ContentLoader()
     {
-
+        // _loaders.Add(".png", new TextureLoader());
+        _loaders.Add(".fs", new ShaderLoader());
+        _loaders.Add(".vs", new ShaderLoader());
+        _loaders.Add(".shader", new ShaderProgramLoader());
+        // _loaders.Add(".dll", new AssemblyLoader());
+        // _loaders.Add(".fontzip", new FontLoader());
+        // _loaders.Add(".md", new MarkdownFileLoader());
     }
 
     public string GetIdentifierForSource(IContentSource source)
@@ -77,7 +41,8 @@ public class ContentLoader : IContentLoader<ContentMeta>
 
     public IEnumerable<IContentLoadingStage> GetLoadingStages()
     {
-        yield return new TestLoadingStage();
+        yield return new ShaderLoadingStage(_loaders, true, ".vs", ".fs");
+        yield return new ShaderProgramLoadingStage(_loaders, true, ".shader");
     }
 
     public IEnumerable<IContentSource> GetSourceLoadOrder(IEnumerable<IContentSource> sources)
@@ -97,26 +62,6 @@ public class ContentLoader : IContentLoader<ContentMeta>
 
     public IEnumerable<(ContentEntry, ContentItem[])> PostProcessEntries(IEnumerable<(ContentEntry, ContentItem[])> entries)
     {
-        // Need to perform overwriting here
-        // First entry identifier, and last item is the one that should be used
-
-        // var sourceOrder = GetSourceLoadOrder(entries.Select(entry => entry.Item2.First().Source)).ToList();
-
-        // var entryToSource = entries.ToDictionary(entry => entry.Item1, entry => entry.Item2.First().Source);
-        // var entryToItems = entries.ToDictionary(entry => entry.Item1, entry => entry.Item2);
-
-        // var groupedEntries = entryToItems.GroupBy(entry => entry.Key.EntryPath);
-
-        // var sorted = groupedEntries.Select(group =>
-        // {
-        //     var orderedGroup = group.OrderBy(g => sourceOrder.IndexOf(entryToSource[g.Key]));
-        //     var firstEntry = orderedGroup.First().Key;
-        //     var firstItems = entryToItems[firstEntry];
-        //     var lastEntry = orderedGroup.Last().Key;
-
-        //     return (firstEntry, entryToItems[lastEntry]);
-        // }).ToList();
-
         return entries;
     }
 }
