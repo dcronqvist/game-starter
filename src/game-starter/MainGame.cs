@@ -18,11 +18,6 @@ class MainGame : Game
 {
     public static ContentManager<ContentMeta> ContentManager { get; private set; }
 
-#pragma warning disable CS0414
-    bool _finishedLoading = false;
-    bool _contextAcquired = false;
-#pragma warning restore CS0414
-
     public override void Initialize(string[] args)
     {
         Logging.StartLogging();
@@ -83,7 +78,6 @@ class MainGame : Game
                 }
             });
 #endif
-            this._finishedLoading = true;
         };
 
         ContentManager.StartedLoadingStage += (sender, e) =>
@@ -135,31 +129,10 @@ class MainGame : Game
 
     public override void Render()
     {
-#if DEBUG
         DisplayManager.LockedGLContext(() =>
         {
             this.InnerRender();
         });
-#elif RELEASE
-        if (this._finishedLoading && !this._contextAcquired)
-        {
-            DisplayManager.AcquireGLContext();
-            this._contextAcquired = true;
-            Logging.Log(LogLevel.Debug, "All content loaded, can now acquire GL context forever.");
-        }
-
-        if (this._contextAcquired)
-        {
-            this.InnerRender();
-        }
-        else
-        {
-            DisplayManager.LockedGLContext(() =>
-            {
-                this.InnerRender();
-            });
-        }
-#endif
     }
 
     public override void Unload()
