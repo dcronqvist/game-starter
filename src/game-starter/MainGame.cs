@@ -7,7 +7,6 @@ using GameStarter.Debugging;
 using GameStarter.Display;
 using GameStarter.Graphics;
 using GameStarter.Graphics.Rendering;
-using LogiX.Graphics;
 using LogiX.Rendering;
 using Symphony;
 using static GameStarter.Display.GL;
@@ -17,6 +16,7 @@ namespace GameStarter;
 class MainGame : Game
 {
     public static ContentManager<ContentMeta> ContentManager { get; private set; }
+    bool _coreDone = false;
 
     public override void Initialize(string[] args)
     {
@@ -30,10 +30,12 @@ class MainGame : Game
         Logging.Log(LogLevel.Info, "Loading content...");
 
 #if DEBUG
-        var basePath = @"..\..\..\..\..\..";
+        var basePath = @"..\..\";
 #elif RELEASE
-        var basePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        var basePath = Path.GetDirectoryName(System.AppContext.BaseDirectory);
 #endif
+        basePath = Path.GetFullPath(basePath);
+        Logging.Log(LogLevel.Debug, $"Base path: {basePath}");
 
         Func<string, IContentSource> pathFactory = (string path) =>
         {
@@ -85,6 +87,15 @@ class MainGame : Game
             Logging.Log(LogLevel.Info, $"Started loading stage {e.Stage.StageName}");
         };
 
+        ContentManager.FinishedLoadingStage += (sender, e) =>
+        {
+            Logging.Log(LogLevel.Info, $"Finished loading stage {e.Stage.StageName}");
+            if (e.Stage is CoreLoadingStage)
+            {
+                this._coreDone = true;
+            }
+        };
+
         ContentManager.ContentItemReloaded += (sender, e) =>
         {
             Logging.Log(LogLevel.Info, $"Reloaded {e.Item.Identifier}");
@@ -104,6 +115,7 @@ class MainGame : Game
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         TextureRenderer.InitGL();
         Framebuffer.InitQuad();
+        TextRenderer.InitGL();
 
         DisplayManager.ReleaseGLContext();
         _ = ContentManager.LoadAsync();
@@ -120,9 +132,12 @@ class MainGame : Game
         Framebuffer.Clear(ColorF.Darken(ColorF.CycleHue(GameTime.TotalElapsedSeconds * 30f), 0.5f));
 
         var shader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/textures/texture.shader");
+        var font = ContentManager.GetContentItem<Font>("resources:core/fonts/inconsolata.font");
         var texture = ContentManager.GetContentItem<Texture2D>("resources:core/textures/bomb.png");
 
-        TextureRenderer.Render(shader, texture, DisplayManager.GetWindowSizeInPixels() / 2f - (texture.Size * 10f) / 2f, Vector2.One * 10f, GameTime.TotalElapsedSeconds, ColorF.White, new Vector2(0.5f, 0.5f), Framebuffer.GetDefaultCamera());
+        TextureRenderer.Render(shader, texture, new Vector2(50, 100), Vector2.One, 0f, ColorF.White, new Vector2(0.5f, 0.5f), Framebuffer.GetDefaultCamera());
+
+        TextRenderer.RenderText(font, "Hello, World!", new Vector2(50, 100), Vector2.One * (MathF.Sin(GameTime.TotalElapsedSeconds) + 2f), Framebuffer.GetDefaultCamera());
 
         DisplayManager.SwapBuffers(-1);
     }
@@ -131,7 +146,10 @@ class MainGame : Game
     {
         DisplayManager.LockedGLContext(() =>
         {
-            this.InnerRender();
+            if (this._coreDone)
+            {
+                this.InnerRender();
+            }
         });
     }
 

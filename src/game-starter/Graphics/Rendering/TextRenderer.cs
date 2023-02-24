@@ -1,76 +1,13 @@
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Numerics;
 using static GameStarter.Display.GL;
 
 namespace GameStarter.Graphics.Rendering;
 
-[Flags]
-public enum TextureRenderEffects
-{
-    None = 1 << 0,
-    FlipHorizontal = 1 << 1,
-    FlipVertical = 1 << 2,
-}
-
-public static class TextureRenderer
+public static class TextRenderer
 {
     private static uint quadVAO;
     private static uint quadVBO;
-    public static RectangleF currentSourceRectangle;
-
-    static TextureRenderer()
-    {
-
-    }
-
-    public static void Render(ShaderProgram shader, Texture2D texture, Vector2 position, Vector2 scale, float rotation, ColorF color, Camera2D camera, TextureRenderEffects effects = TextureRenderEffects.None)
-    {
-        if (texture != null)
-            Render(shader, texture, position, scale, rotation, color, Vector2.Zero, new RectangleF(0, 0, texture.Width, texture.Height), camera, effects);
-    }
-
-    public static void Render(ShaderProgram shader, Texture2D texture, Vector2 position, Vector2 scale, float rotation, ColorF color, Vector2 origin, Camera2D camera, TextureRenderEffects effects = TextureRenderEffects.None)
-    {
-        if (texture != null)
-            Render(shader, texture, position, scale, rotation, color, origin, new Rectangle(0, 0, texture.Width, texture.Height), camera, effects);
-    }
-
-    public static unsafe void Render(ShaderProgram shader, Texture2D texture, Vector2 position, Vector2 scale, float rotation, ColorF color, Vector2 origin, RectangleF sourceRectangle, Camera2D camera, TextureRenderEffects effects)
-    {
-        if (!IsShaderValid(shader, out var missingAttribs, out var missingUniforms))
-        {
-            throw new ArgumentException($"Shader is invalid! Missing attributes: {string.Join(", ", missingAttribs)}, missing uniforms: {string.Join(", ", missingUniforms)}");
-        }
-
-        shader.Use(() =>
-        {
-            Matrix4x4 modelMatrix = Utilities.CreateModelMatrixFromPosition(position, rotation, origin, scale * new Vector2(sourceRectangle.Width, sourceRectangle.Height));
-
-            shader.SetMatrix4x4("projection", camera.GetProjectionMatrix());
-            shader.SetVec4("textureColor", color.R, color.G, color.B, color.A);
-            shader.SetInt("image", 0);
-            shader.SetFloatArray("uvCoords", GetUVCoordinateData(texture.Width, texture.Height, sourceRectangle, effects));
-            shader.SetMatrix4x4("model", modelMatrix);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture.GLID);
-
-            glBindVertexArray(quadVAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            glBindVertexArray(0);
-        });
-    }
-
-    private static bool IsShaderValid(ShaderProgram shader, out string[] missingAttribs, out string[] missingUniforms)
-    {
-        bool hasAttribs = shader.HasAttribs(out missingAttribs, ("position", "vec2", 0));
-        bool hasUniforms = shader.HasUniforms(out missingUniforms, ("projection", "mat4"), ("model", "mat4"));
-
-        return hasAttribs && hasUniforms;
-    }
 
     private static float[] GetUVCoordinateData(int textureWith, int textureHeight, RectangleF rec, TextureRenderEffects effects)
     {
@@ -128,6 +65,60 @@ public static class TextureRenderer
         }
 
         return data;
+    }
+
+    public static void RenderText(Font font, string text, Vector2 position, Vector2 scale, Camera2D camera)
+    {
+        float x = position.X;
+        float y = position.Y + font.Content.Metrics.LineHeight * scale.Y * font.Content.Atlas.Size;
+
+        var texture = font.TextureAtlas;
+
+        var shader = MainGame.ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/text/msdf/msdf.shader");
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            var glyph = font.GetCharacter(c);
+
+            if (glyph.AtlasBounds is null)
+            {
+                x += glyph.Advance * scale.X * font.Content.Atlas.Size;
+                continue;
+            }
+
+            var rect = glyph.AtlasBounds.ToUVRect(texture.Size);
+
+            Vector2 pos = new Vector2(x, y - rect.Height * scale.Y - glyph.PlaneBounds.Bottom * font.Content.Atlas.Size * scale.Y);
+            float rotation = 0f;
+            ColorF bgColor = ColorF.Transparent;
+            ColorF fgColor = ColorF.White;
+            Vector2 origin = Vector2.Zero;
+            RectangleF sourceRectangle = rect;
+            TextureRenderEffects effects = TextureRenderEffects.None;
+
+            shader.Use(() =>
+            {
+                Matrix4x4 modelMatrix = Utilities.CreateModelMatrixFromPosition(pos, rotation, origin, scale * new Vector2(sourceRectangle.Width, sourceRectangle.Height));
+
+                shader.SetMatrix4x4("projection", camera.GetProjectionMatrix());
+                shader.SetVec4("bgColor", bgColor.R, bgColor.G, bgColor.B, bgColor.A);
+                shader.SetVec4("fgColor", fgColor.R, fgColor.G, fgColor.B, fgColor.A);
+                shader.SetInt("msdf", 0);
+                shader.SetFloatArray("uvCoords", GetUVCoordinateData(texture.Width, texture.Height, sourceRectangle, effects));
+                shader.SetMatrix4x4("model", modelMatrix);
+                shader.SetFloat("pxRange", font.Content.Atlas.DistanceRange);
+
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, texture.GLID);
+
+                glBindVertexArray(quadVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glBindVertexArray(0);
+            });
+
+            x += rect.Width * scale.X;
+        }
     }
 
     public static unsafe void InitGL()

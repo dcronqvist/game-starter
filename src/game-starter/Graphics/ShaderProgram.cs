@@ -8,7 +8,7 @@ using System;
 using GameStarter;
 using System.Linq;
 
-namespace LogiX.Graphics;
+namespace GameStarter.Graphics;
 
 public struct ShaderVariable
 {

@@ -8,7 +8,7 @@ using StbImageSharp;
 using Symphony;
 using static GameStarter.Display.GL;
 
-namespace LogiX.Graphics;
+namespace GameStarter.Graphics;
 
 public class Texture2D : GLContentItem<ImageResult>
 {
@@ -17,9 +17,18 @@ public class Texture2D : GLContentItem<ImageResult>
     public int Height => this.Content.Height;
     public Vector2 Size => new Vector2(this.Width, this.Height);
 
+    private int _minFilter = GL_LINEAR;
+    private int _magFilter = GL_NEAREST;
+
     public Texture2D(IContentSource source, ImageResult content) : base(source, content)
     {
 
+    }
+
+    public Texture2D(IContentSource source, ImageResult content, int minFilter, int magFilter) : base(source, content)
+    {
+        this._minFilter = minFilter;
+        this._magFilter = magFilter;
     }
 
     public Texture2D(int width, int height, byte[] data) : base(null, new ImageResult() { Width = width, Height = height, Data = data, Comp = ColorComponents.RedGreenBlueAlpha, SourceComp = ColorComponents.RedGreenBlueAlpha })
@@ -48,8 +57,6 @@ public class Texture2D : GLContentItem<ImageResult>
 
         var wrapS = GL_CLAMP_TO_EDGE;
         var wrapT = GL_CLAMP_TO_EDGE;
-        var minFilter = GL_LINEAR;
-        var magFilter = GL_NEAREST;
 
         // Set texture data
         fixed (byte* pix = &pixelData[0])
@@ -61,8 +68,8 @@ public class Texture2D : GLContentItem<ImageResult>
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _magFilter);
 
         // Generate mip maps
         //glGenerateMipmap(GL_TEXTURE_2D);

@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using GameStarter.Content.Loading;
-using LogiX.Graphics;
+using GameStarter.Graphics;
 using Symphony;
 
 namespace GameStarter.Content.Loaders;

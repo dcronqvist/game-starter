@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using GameStarter.Content.Loading;
-using LogiX.Graphics;
+using GameStarter.Graphics;
 using StbImageSharp;
 using Symphony;
 

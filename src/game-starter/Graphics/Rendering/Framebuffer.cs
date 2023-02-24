@@ -1,6 +1,5 @@
 using static GameStarter.Display.GL;
 
-using LogiX.Graphics;
 using System.Numerics;
 using GameStarter.Display;
 using GameStarter.Graphics.Rendering;
