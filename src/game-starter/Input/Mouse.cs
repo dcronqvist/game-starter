@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using GameStarter.Display;
 using GameStarter.Display.GLFW;
+using GameStarter.Graphics.Rendering;
 
 namespace GameStarter.Input;
 
@@ -84,15 +85,15 @@ public static class Mouse
         return new Vector2((float)x, (float)y);
     }
 
-    // public static Vector2 GetMousePosition(Camera2D offsetCamera)
-    // {
-    //     Vector2 windowSize = DisplayManager.GetWindowSizeInPixels();
-    //     Vector2 topLeft = offsetCamera.TopLeft;
+    public static Vector2 GetMousePosition(Camera2D offsetCamera)
+    {
+        Vector2 windowSize = DisplayManager.GetWindowSizeInPixels();
+        Vector2 topLeft = offsetCamera.TopLeft;
 
-    //     Glfw.GetCursorPosition(DisplayManager.WindowHandle, out double x, out double y);
+        Glfw.GetCursorPosition(DisplayManager.WindowHandle, out double x, out double y);
 
-    //     return topLeft + (new Vector2((float)x, (float)y)) / offsetCamera.Zoom;
-    // }
+        return topLeft + (new Vector2((float)x, (float)y)) / offsetCamera.Zoom;
+    }
 
     public static void SetMousePosition(int x, int y)
     {

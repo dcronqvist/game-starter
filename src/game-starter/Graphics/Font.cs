@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Numerics;
@@ -96,5 +97,27 @@ public class Font : GLContentItem<FontData>
     public FontCharacter GetCharacter(uint unicode)
     {
         return this.Content.Glyphs.Find((c) => c.Unicode == unicode);
+    }
+
+    public Vector2 MeasureString(string text)
+    {
+        float x = 0;
+        float y = 0;
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            var glyph = this.GetCharacter(c);
+            x += glyph.Advance;
+
+            if (glyph.AtlasBounds == null)
+            {
+                continue;
+            }
+
+            y = Math.Max(y, glyph.PlaneBounds.Top - glyph.PlaneBounds.Bottom);
+        }
+
+        return new Vector2(x, y) * this.Content.Atlas.Size;
     }
 }

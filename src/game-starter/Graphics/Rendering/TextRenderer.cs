@@ -69,11 +69,12 @@ public static class TextRenderer
 
     public static void RenderText(Font font, string text, Vector2 position, Vector2 scale, Camera2D camera)
     {
+        var measure = font.MeasureString(text);
+
         float x = position.X;
-        float y = position.Y + font.Content.Metrics.LineHeight * scale.Y * font.Content.Atlas.Size;
+        float y = position.Y + measure.Y;
 
         var texture = font.TextureAtlas;
-
         var shader = MainGame.ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/text/msdf/msdf.shader");
 
         for (int i = 0; i < text.Length; i++)
@@ -83,18 +84,24 @@ public static class TextRenderer
 
             if (glyph.AtlasBounds is null)
             {
-                x += glyph.Advance * scale.X * font.Content.Atlas.Size;
+                x += glyph.Advance * font.Content.Atlas.Size;
                 continue;
             }
 
-            var rect = glyph.AtlasBounds.ToUVRect(texture.Size);
+            var planeBounds = glyph.PlaneBounds;
+            var atlasBounds = glyph.AtlasBounds;
 
-            Vector2 pos = new Vector2(x, y - rect.Height * scale.Y - glyph.PlaneBounds.Bottom * font.Content.Atlas.Size * scale.Y);
+            float x0 = x + planeBounds.Left * font.Content.Atlas.Size;
+            float y0 = y - planeBounds.Top * font.Content.Atlas.Size;
+
+            var uv = glyph.AtlasBounds.ToUVRect(texture.Size);
+
+            Vector2 pos = new Vector2(x0, y0);
             float rotation = 0f;
             ColorF bgColor = ColorF.Transparent;
             ColorF fgColor = ColorF.White;
             Vector2 origin = Vector2.Zero;
-            RectangleF sourceRectangle = rect;
+            RectangleF sourceRectangle = uv;
             TextureRenderEffects effects = TextureRenderEffects.None;
 
             shader.Use(() =>
@@ -117,7 +124,7 @@ public static class TextRenderer
                 glBindVertexArray(0);
             });
 
-            x += rect.Width * scale.X;
+            x += glyph.Advance * font.Content.Atlas.Size;
         }
     }
 
