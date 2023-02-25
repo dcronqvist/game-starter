@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Numerics;
 using static GameStarter.Display.GL;
@@ -67,12 +68,23 @@ public static class TextRenderer
         return data;
     }
 
-    public static void RenderText(Font font, string text, Vector2 position, Vector2 scale, Camera2D camera)
+    public static void RenderText(Font font, string text, Vector2 position, Vector2 scale, float rotation, ColorF color, Camera2D camera)
+    {
+        RenderText(font, text, position, scale, rotation, (c, i) => color, camera);
+    }
+
+    public static void RenderText(Font font, string text, Vector2 position, Vector2 scale, float rotation, Func<char, int, ColorF> charColor, Camera2D camera)
+    {
+        RenderText(font, text, position, scale, rotation, (c, i) => Vector2.Zero, charColor, camera);
+    }
+
+    public static void RenderText(Font font, string text, Vector2 position, Vector2 scale, float rotation, Func<char, int, Vector2> charOffset, Func<char, int, ColorF> charColor, Camera2D camera)
     {
         var measure = font.MeasureString(text);
+        var scaledMeasure = measure * scale;
 
         float x = position.X;
-        float y = position.Y + measure.Y;
+        float y = position.Y + measure.Y * scale.Y;
 
         var texture = font.TextureAtlas;
         var shader = MainGame.ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/text/msdf/msdf.shader");
@@ -84,29 +96,29 @@ public static class TextRenderer
 
             if (glyph.AtlasBounds is null)
             {
-                x += glyph.Advance * font.Content.Atlas.Size;
+                x += glyph.Advance * font.Content.Atlas.Size * scale.X;
                 continue;
             }
 
             var planeBounds = glyph.PlaneBounds;
             var atlasBounds = glyph.AtlasBounds;
 
-            float x0 = x + planeBounds.Left * font.Content.Atlas.Size;
-            float y0 = y - planeBounds.Top * font.Content.Atlas.Size;
+            var offset = charOffset(c, i);
+            float x0 = x + (planeBounds.Left * font.Content.Atlas.Size * scale.X + offset.X);
+            float y0 = y - (planeBounds.Top * font.Content.Atlas.Size * scale.Y + offset.Y);
 
             var uv = glyph.AtlasBounds.ToUVRect(texture.Size);
 
             Vector2 pos = new Vector2(x0, y0);
-            float rotation = 0f;
+            pos = pos.RotateAround(position, -rotation);
             ColorF bgColor = ColorF.Transparent;
-            ColorF fgColor = ColorF.White;
-            Vector2 origin = Vector2.Zero;
+            ColorF fgColor = charColor(c, i);
             RectangleF sourceRectangle = uv;
             TextureRenderEffects effects = TextureRenderEffects.None;
 
             shader.Use(() =>
             {
-                Matrix4x4 modelMatrix = Utilities.CreateModelMatrixFromPosition(pos, rotation, origin, scale * new Vector2(sourceRectangle.Width, sourceRectangle.Height));
+                Matrix4x4 modelMatrix = Utilities.CreateModelMatrixFromPosition(pos, rotation, Vector2.Zero, scale * new Vector2(sourceRectangle.Width, sourceRectangle.Height));
 
                 shader.SetMatrix4x4("projection", camera.GetProjectionMatrix());
                 shader.SetVec4("bgColor", bgColor.R, bgColor.G, bgColor.B, bgColor.A);
@@ -124,7 +136,7 @@ public static class TextRenderer
                 glBindVertexArray(0);
             });
 
-            x += glyph.Advance * font.Content.Atlas.Size;
+            x += glyph.Advance * font.Content.Atlas.Size * scale.X;
         }
     }
 

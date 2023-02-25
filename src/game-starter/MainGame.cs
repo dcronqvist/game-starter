@@ -150,7 +150,7 @@ class MainGame : Game
 
     public void InnerRender()
     {
-        Framebuffer.Clear(ColorF.Darken(ColorF.CycleHue(GameTime.TotalElapsedSeconds * 30f), 0.5f));
+        Framebuffer.Clear(ColorF.Black);
 
         var shader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/textures/texture.shader");
         var primShader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/primitives/primitives.shader");
@@ -162,16 +162,17 @@ class MainGame : Game
             return;
         }
 
-        var scale = Vector2.One;
+        var scale = Vector2.One * ((MathF.Sin(GameTime.TotalElapsedSeconds) + 1f) * 2f + 3f);
 
-        var pos1 = Mouse.GetMousePosition(Framebuffer.GetDefaultCamera());
+        var pos1 = DisplayManager.GetWindowSizeInPixels() / 2f;
 
         var data = Scripting.LuaState["data"] as LuaTable;
 
-        for (int i = 0; i < data.Values.Count; i++)
+        for (int i = 0; i < data.Keys.Count; i++)
         {
             var text = data[i + 1] as string;
-            TextRenderer.RenderText(font1, text, pos1 + new Vector2(0, i * 50), scale, Framebuffer.GetDefaultCamera());
+            var measure = font1.MeasureString(text) * scale;
+            TextRenderer.RenderText(font1, text, pos1 - measure / 2f + new Vector2(0, i * (measure.Y + 10f) * scale.Y), scale, 0f, (c, i) => new Vector2(0, 0f), (c, i) => ColorF.CycleHue(i * 9f + GameTime.TotalElapsedSeconds * 60f), Framebuffer.GetDefaultCamera());
         }
 
 

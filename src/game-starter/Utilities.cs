@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 
 public static class Utilities
@@ -22,5 +23,12 @@ public static class Utilities
                 m.M31, m.M32, m.M33, m.M34,
                 m.M41, m.M42, m.M43, m.M44
         };
+    }
+
+    public static Vector2 RotateAround(this Vector2 v, Vector2 pivot, float angle)
+    {
+        Vector2 dir = v - pivot;
+        return new Vector2(dir.X * MathF.Cos(angle) + dir.Y * MathF.Sin(angle),
+                           -dir.X * MathF.Sin(angle) + dir.Y * MathF.Cos(angle)) + pivot;
     }
 }
