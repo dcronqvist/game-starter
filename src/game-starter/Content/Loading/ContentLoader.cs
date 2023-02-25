@@ -18,6 +18,7 @@ public class ContentLoader : IContentLoader<ContentMeta>
         _loaders.Add(".fs", new ShaderLoader());
         _loaders.Add(".vs", new ShaderLoader());
         _loaders.Add(".shader", new ShaderProgramLoader());
+        _loaders.Add(".lua", new LuaScriptLoader());
         // _loaders.Add(".dll", new AssemblyLoader());
         _loaders.Add(".font", new FontLoader());
         // _loaders.Add(".md", new MarkdownFileLoader());
@@ -44,8 +45,8 @@ public class ContentLoader : IContentLoader<ContentMeta>
         yield return new ShaderLoadingStage(_loaders, true, ".vs", ".fs");
         yield return new ShaderProgramLoadingStage(_loaders, true, ".shader");
 
-        yield return new CoreLoadingStage(_loaders, true, ".png", ".font");
-        yield return new NormalLoadingStage(_loaders, true, ".png");
+        yield return new CoreLoadingStage(_loaders, true, ".png", ".font", ".lua");
+        yield return new NormalLoadingStage(_loaders, true, ".png", ".lua");
     }
 
     public IEnumerable<IContentSource> GetSourceLoadOrder(IEnumerable<IContentSource> sources)

@@ -8,9 +8,11 @@ using GameStarter.Display;
 using GameStarter.Graphics;
 using GameStarter.Graphics.Rendering;
 using GameStarter.Input;
+using NLua;
 using LogiX.Rendering;
 using Symphony;
 using static GameStarter.Display.GL;
+using GameStarter.Scripts;
 
 namespace GameStarter;
 
@@ -67,7 +69,8 @@ class MainGame : Game
 
         var loader = new ContentLoader();
 
-        var config = new ContentManagerConfiguration<ContentMeta>(validator, collectionProvider, loader);
+        // Regex below matches all files that don't have a .lua extension, so .lua scripts NEVER get overwritten by load order
+        var config = new ContentManagerConfiguration<ContentMeta>(validator, collectionProvider, loader, false, @"^[^.]+$|\.(?!(lua)$)([^.]+$)");
         ContentManager = new ContentManager<ContentMeta>(config);
 
         ContentManager.StartedLoading += (sender, e) =>
@@ -78,6 +81,7 @@ class MainGame : Game
         ContentManager.FinishedLoading += (sender, e) =>
         {
             Logging.Log(LogLevel.Info, "Finished loading content.");
+            Scripting.Initialize();
 
 #if DEBUG   // Only apply hot reload in debug builds
             _ = Task.Run(async () =>
@@ -108,6 +112,13 @@ class MainGame : Game
         ContentManager.ContentItemReloaded += (sender, e) =>
         {
             Logging.Log(LogLevel.Info, $"Reloaded {e.Item.Identifier}");
+
+            if (e.Item is LuaScript)
+            {
+                // Need to reload scripting
+                Scripting.Unload();
+                Scripting.Initialize();
+            }
         };
 
         ContentManager.ContentItemSuccessfullyLoaded += (sender, e) =>
@@ -146,19 +157,25 @@ class MainGame : Game
         var font1 = ContentManager.GetContentItem<Font>("resources:core/fonts/coders_crux.font");
         var texture = ContentManager.GetContentItem<Texture2D>("resources:core/textures/bomb.png");
 
-        TextureRenderer.Render(shader, texture, new Vector2(50, 100), Vector2.One, 0f, ColorF.White, new Vector2(0.5f, 0.5f), Framebuffer.GetDefaultCamera());
+        if (!Scripting.IsInitialized)
+        {
+            return;
+        }
 
         var scale = Vector2.One;
 
         var pos1 = Mouse.GetMousePosition(Framebuffer.GetDefaultCamera());
 
-        var text = "Hello World!";
+        var data = Scripting.LuaState["data"] as LuaTable;
 
-        TextRenderer.RenderText(font1, text, pos1, scale, Framebuffer.GetDefaultCamera());
-        var measure = font1.MeasureString(text);
+        for (int i = 0; i < data.Values.Count; i++)
+        {
+            var text = data[i + 1] as string;
+            TextRenderer.RenderText(font1, text, pos1 + new Vector2(0, i * 50), scale, Framebuffer.GetDefaultCamera());
+        }
 
-        var scaledMeasure = measure * scale;
-        PrimitiveRenderer.RenderRectangle(primShader, new System.Drawing.RectangleF(pos1.X, pos1.Y, scaledMeasure.X, scaledMeasure.Y), ColorF.Red * 0.5f, Framebuffer.GetDefaultCamera());
+
+        //TextureRenderer.Render(shader, texture, pos1, Vector2.One * 10f, 0f, ColorF.White, new Vector2(0.5f, 0.5f), Framebuffer.GetDefaultCamera());
         DisplayManager.SwapBuffers(-1);
     }
 
@@ -175,6 +192,7 @@ class MainGame : Game
 
     public override void Unload()
     {
+        Scripting.Unload();
         ContentManager.UnloadAllContent();
     }
 }
