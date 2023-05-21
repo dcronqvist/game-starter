@@ -1,8 +1,8 @@
 using System;
 using System.Numerics;
+using DotGLFW;
 using GameStarter.Content.Loading;
 using GameStarter.Display;
-using GameStarter.Display.GLFW;
 using GameStarter.Graphics;
 using StbImageSharp;
 using Symphony;
@@ -94,14 +94,10 @@ public class Texture2D : GLContentItem<ImageResult>
         return this.GLID != 0;
     }
 
-    public unsafe Image GetAsGLFWImage()
+    public Image GetAsGLFWImage()
     {
         byte[] pixelData = this.Content.Data;
-        fixed (byte* pix = &pixelData[0])
-        {
-            IntPtr ip = new IntPtr(pix);
-            return new Image(this.Content.Width, this.Content.Height, ip);
-        }
+        return new Image() { Width = this.Width, Height = this.Height, Pixels = pixelData };
     }
 
     public static Texture2D FromPixelData(int width, int height, ColorF[,] pixels)

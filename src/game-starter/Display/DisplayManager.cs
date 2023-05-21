@@ -2,8 +2,9 @@ using System;
 using System.Drawing;
 using System.Numerics;
 using GameStarter.Debugging;
-using GameStarter.Display.GLFW;
+using DotGLFW;
 using static GameStarter.Display.GL;
+using System.Runtime.InteropServices;
 
 namespace GameStarter.Display;
 
@@ -24,18 +25,19 @@ public static class DisplayManager
 
     private static void PrepareContext(bool maximized)
     {
+        Glfw.Init();
+
         // Set some common hints for the OpenGL profile creation
-        Glfw.WindowHint(Hint.ClientApi, ClientApi.OpenGL);
+        Glfw.WindowHint(Hint.ClientAPI, ClientAPI.OpenGLAPI);
         Glfw.WindowHint(Hint.ContextVersionMajor, 3);
         Glfw.WindowHint(Hint.ContextVersionMinor, 3);
-        Glfw.WindowHint(Hint.OpenglForwardCompatible, true);
+        Glfw.WindowHint(Hint.OpenGLForwardCompat, true);
 
-        Glfw.WindowHint(Hint.CocoaRetinaFrameBuffer, false);
+        Glfw.WindowHint(Hint.CocoaRetinaFramebuffer, false);
         Glfw.WindowHint(Hint.ScaleToMonitor, false);
-        Glfw.WindowHint(Hint.HiDPIResize, true);
 
-        Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
-        Glfw.WindowHint(Hint.Doublebuffer, true);
+        Glfw.WindowHint(Hint.OpenGLProfile, OpenGLProfile.CoreProfile);
+        Glfw.WindowHint(Hint.DoubleBuffer, true);
         Glfw.WindowHint(Hint.Decorated, true);
         Glfw.WindowHint(Hint.Maximized, maximized);
         Glfw.WindowHint(Hint.Samples, 4);
@@ -51,19 +53,20 @@ public static class DisplayManager
     private static Window CreateWindow(int width, int height, string title, int minWidth = 1280, int minHeight = 720)
     {
         // Create window, make the OpenGL context current on the thread, and import graphics functions
-        Window window = Glfw.CreateWindow(width, height, title, GLFW.Monitor.None, Window.None);
+        Window window = Glfw.CreateWindow(width, height, title, Monitor.NULL, Window.NULL);
+
+        Monitor primaryMonitor = Glfw.GetPrimaryMonitor();
+        Glfw.GetMonitorWorkarea(primaryMonitor, out int x, out int y, out int w, out int h);
 
         // Center window
-        Rectangle screen = Glfw.PrimaryMonitor.WorkArea;
-        int x = (screen.Width - width) / 2;
-        int y = (screen.Height - height) / 2;
-        Glfw.SetWindowPosition(window, x, y);
+        int wx = w / 2 - width / 2;
+        int wy = h / 2 - height / 2;
+        Glfw.SetWindowPos(window, wx, wy);
 
         Glfw.MakeContextCurrent(window);
         GL.Import(Glfw.GetProcAddress);
 
-        Glfw.SetWindowSizeLimits(window, minWidth, minHeight, screen.Width, screen.Height);
-
+        Glfw.SetWindowSizeLimits(window, minWidth, minHeight, Glfw.DontCare, Glfw.DontCare);
         return window;
     }
 
@@ -75,7 +78,7 @@ public static class DisplayManager
 
     public static void ReleaseGLContext()
     {
-        Glfw.MakeContextCurrent(Window.None);
+        Glfw.MakeContextCurrent(Window.NULL);
     }
 
     public static void AcquireGLContext()
@@ -95,7 +98,7 @@ public static class DisplayManager
 
         lock (_glLock)
         {
-            var oldContext = Glfw.CurrentContext;
+            var oldContext = Glfw.GetCurrentContext();
 
             if (oldContext == WindowHandle)
             {
@@ -111,7 +114,7 @@ public static class DisplayManager
 
     public static bool HasGLContext()
     {
-        return Glfw.CurrentContext == WindowHandle;
+        return Glfw.GetCurrentContext() == WindowHandle;
     }
 
     public unsafe static void InitWindow(int width, int height, string title, bool maximized, int minWidth = 1280, int minHeight = 720)
@@ -125,6 +128,8 @@ public static class DisplayManager
             var iconBitmap = icon.ToBitmap();
             var pixelData = iconBitmap.LockBits(new Rectangle(0, 0, iconBitmap.Width, iconBitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadWrite, iconBitmap.PixelFormat);
 
+            byte[] pixels = new byte[iconBitmap.Width * iconBitmap.Height * 4];
+
             // Reverse the color channels
             for (int i = 0; i < pixelData.Stride * pixelData.Height; i += 4)
             {
@@ -134,8 +139,10 @@ public static class DisplayManager
                 *(byte*)(pixelData.Scan0 + i + 2) = r;
             }
 
-            GLFW.Image image = new GLFW.Image(iconBitmap.Width, iconBitmap.Height, (nint)pixelData.Scan0);
-            Glfw.SetWindowIcon(WindowHandle, 1, new GLFW.Image[] { image });
+            Marshal.Copy(pixelData.Scan0, pixels, 0, pixels.Length);
+
+            DotGLFW.Image image = new DotGLFW.Image() { Width = iconBitmap.Width, Height = iconBitmap.Height, Pixels = pixels };
+            Glfw.SetWindowIcon(WindowHandle, new DotGLFW.Image[] { image });
         }
 
         Glfw.SetWindowMaximizeCallback(WindowHandle, (window, maximized) =>
@@ -181,7 +188,7 @@ public static class DisplayManager
 
     public static bool IsWindowFocused()
     {
-        return Glfw.GetWindowAttribute(WindowHandle, WindowAttribute.Focused);
+        return Glfw.GetWindowAttrib(WindowHandle, WindowAttrib.Focused);
     }
 
     // public unsafe static void SetWindowIcon(Texture2D texture)
@@ -189,7 +196,7 @@ public static class DisplayManager
     //     Glfw.SetWindowIcon(WindowHandle, 1, new Image[] { texture.GetAsGLFWImage() });
     // }
 
-    public unsafe static void SetCursorToPlatformStandard(CursorType cursorType)
+    public unsafe static void SetCursorToPlatformStandard(CursorShape cursorType)
     {
         var cursor = Glfw.CreateStandardCursor(cursorType);
         Glfw.SetCursor(WindowHandle, cursor);

@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using DotGLFW;
 using GameStarter.Display;
-using GameStarter.Display.GLFW;
 
 namespace GameStarter.Input;
 

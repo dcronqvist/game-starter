@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using DotGLFW;
 using GameStarter.Display;
-using GameStarter.Display.GLFW;
 using GameStarter.Graphics.Rendering;
 
 namespace GameStarter.Input;
@@ -81,7 +81,7 @@ public static class Mouse
 
     public static Vector2 GetMousePositionInWindow()
     {
-        Glfw.GetCursorPosition(DisplayManager.WindowHandle, out double x, out double y);
+        Glfw.GetCursorPos(DisplayManager.WindowHandle, out double x, out double y);
         return new Vector2((float)x, (float)y);
     }
 
@@ -90,14 +90,14 @@ public static class Mouse
         Vector2 windowSize = DisplayManager.GetWindowSizeInPixels();
         Vector2 topLeft = offsetCamera.TopLeft;
 
-        Glfw.GetCursorPosition(DisplayManager.WindowHandle, out double x, out double y);
+        Glfw.GetCursorPos(DisplayManager.WindowHandle, out double x, out double y);
 
         return topLeft + (new Vector2((float)x, (float)y)) / offsetCamera.Zoom;
     }
 
     public static void SetMousePosition(int x, int y)
     {
-        Glfw.SetCursorPosition(DisplayManager.WindowHandle, x, y);
+        Glfw.SetCursorPos(DisplayManager.WindowHandle, x, y);
     }
 
     public static Vector2 GetMouseWindowDelta()

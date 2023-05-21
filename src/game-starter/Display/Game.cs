@@ -1,4 +1,4 @@
-using GameStarter.Display.GLFW;
+using DotGLFW;
 using GameStarter.Input;
 
 namespace GameStarter.Display;
@@ -29,8 +29,8 @@ abstract class Game
 
         while (!DisplayManager.GetWindowShouldClose())
         {
-            GameTime.DeltaTime = (float)Glfw.Time - GameTime.TotalElapsedSeconds;
-            GameTime.TotalElapsedSeconds = (float)Glfw.Time;
+            GameTime.DeltaTime = (float)Glfw.GetTime() - GameTime.TotalElapsedSeconds;
+            GameTime.TotalElapsedSeconds = (float)Glfw.GetTime();
 
             DisplayManager.PollEvents();
 
@@ -54,7 +54,7 @@ abstract class Game
             if (DisplayManager.TargetFPS != 0)
             {
                 float waitTime = DisplayManager.FrameTime;
-                while (Glfw.Time < GameTime.TotalElapsedSeconds + waitTime) { }
+                while (Glfw.GetTime() < GameTime.TotalElapsedSeconds + waitTime) { }
             }
         }
 
