@@ -7,6 +7,7 @@ using GameStarter.Graphics;
 using System;
 using GameStarter;
 using System.Linq;
+using GameStarter.Display;
 
 namespace GameStarter.Graphics;
 
@@ -14,7 +15,7 @@ public struct ShaderVariable
 {
     public string Name { get; set; }
     public int Location { get; set; }
-    public int Type { get; set; }
+    public uint Type { get; set; }
     public string TypeName { get => this.GetTypeAsString(); }
 
     private string GetTypeAsString()
@@ -89,9 +90,9 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
     public unsafe void InitGL(VertexShader vs, FragmentShader fs)
     {
         // Create program
-        uint programID = glCreateProgram();
-        glAttachShader(programID, vs.ShaderID);
-        glAttachShader(programID, fs.ShaderID);
+        uint programID = GL.glCreateProgram();
+        GL.glAttachShader(programID, vs.ShaderID);
+        GL.glAttachShader(programID, fs.ShaderID);
 
         // Link program
         glLinkProgram(programID);
@@ -134,7 +135,7 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
             glGetProgramiv(programID, GL_INFO_LOG_LENGTH, length);
             string info = glGetProgramInfoLog(programID, *length);
 
-            throw new Exception($"Failed to link shader program: {info}");
+            throw new Exception($"Failed to link shader program {this.Identifier}: {info}");
         }
 
         this.ProgramID = programID;
@@ -218,7 +219,7 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
         for (uint i = 0; i < *uniformAmount; i++)
         {
-            glGetActiveUniform(this.ProgramID, i, 16, out int length, out int size, out int type, out string name);
+            string name = glGetActiveUniform(this.ProgramID, i, 16, out int size, out uint type);
             var variable = new ShaderVariable()
             {
                 Name = name,
@@ -240,7 +241,7 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
         for (uint i = 0; i < *attribAmount; i++)
         {
-            glGetActiveAttrib(this.ProgramID, i, 16, out int length, out int size, out int type, out string name);
+            string name = glGetActiveAttrib(this.ProgramID, i, 16, out int size, out uint type);
             var variable = new ShaderVariable()
             {
                 Name = name,
@@ -290,9 +291,9 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
     public void SetTexture2D(int activeTexture, string name, Texture2D texture)
     {
-        glActiveTexture(GL_TEXTURE0 + activeTexture);
+        glActiveTexture(GL_TEXTURE0 + (uint)activeTexture);
         glBindTexture(GL_TEXTURE_2D, texture.GLID);
-        glUniform1i(glGetUniformLocation(ProgramID, name), activeTexture);
+        glUniform1i(glGetUniformLocation(ProgramID, name), (int)activeTexture);
     }
 
     public void SetBool(string name, bool value)

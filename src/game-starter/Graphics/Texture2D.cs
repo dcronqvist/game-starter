@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using DotGLFW;
 using GameStarter.Content.Loading;
+using GameStarter.Debugging;
 using GameStarter.Display;
 using GameStarter.Graphics;
 using StbImageSharp;
@@ -58,7 +60,6 @@ public class Texture2D : GLContentItem<ImageResult>
         var wrapS = GL_CLAMP_TO_EDGE;
         var wrapT = GL_CLAMP_TO_EDGE;
 
-        // Set texture data
         fixed (byte* pix = &pixelData[0])
         {
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pix);
@@ -84,7 +85,7 @@ public class Texture2D : GLContentItem<ImageResult>
     {
         if (this.GLID != 0)
         {
-            glDeleteTexture(this.GLID);
+            glDeleteTextures(this.GLID);
             this.GLID = 0;
         }
     }

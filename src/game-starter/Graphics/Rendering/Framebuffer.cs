@@ -130,9 +130,9 @@ public class Framebuffer
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, this.textureColorBufferMultiSampled, 0);
 
         uint rbo = glGenRenderbuffer();
-        glBindRenderbuffer(rbo);
+        glBindRenderbuffer(GL_RENDERBUFFER, rbo);
         glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
-        glBindRenderbuffer(0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -193,7 +193,8 @@ public class Framebuffer
     public void Bind(Action performInBuffer)
     {
         // Get old viewport
-        int[] oldViewport = glGetIntegerv(GL_VIEWPORT, 4);
+        int[] oldViewport = new int[4];
+        glGetIntegerv(GL_VIEWPORT, ref oldViewport);
         var prev = GetCurrentBoundBuffer();
         glBindFramebuffer(GL_FRAMEBUFFER, this._framebuffer);
         glViewport(0, 0, this.width, this.height);
@@ -212,7 +213,8 @@ public class Framebuffer
 
     public static uint GetCurrentBoundBuffer()
     {
-        int[] buffer = glGetIntegerv(GL_FRAMEBUFFER_BINDING, 1);
+        int[] buffer = new int[1];
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, ref buffer);
         return (uint)buffer[0];
     }
 

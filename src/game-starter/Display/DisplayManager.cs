@@ -5,6 +5,7 @@ using GameStarter.Debugging;
 using DotGLFW;
 using static GameStarter.Display.GL;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace GameStarter.Display;
 
@@ -29,14 +30,17 @@ public static class DisplayManager
 
         // Set some common hints for the OpenGL profile creation
         Glfw.WindowHint(Hint.ClientAPI, ClientAPI.OpenGLAPI);
-        Glfw.WindowHint(Hint.ContextVersionMajor, 3);
-        Glfw.WindowHint(Hint.ContextVersionMinor, 3);
+        Glfw.WindowHint(Hint.ContextVersionMajor, GL.GetProjectOpenGLVersionMajor());
+        Glfw.WindowHint(Hint.ContextVersionMinor, GL.GetProjectOpenGLVersionMinor());
         Glfw.WindowHint(Hint.OpenGLForwardCompat, true);
 
         Glfw.WindowHint(Hint.CocoaRetinaFramebuffer, false);
         Glfw.WindowHint(Hint.ScaleToMonitor, false);
 
-        Glfw.WindowHint(Hint.OpenGLProfile, OpenGLProfile.CoreProfile);
+        string projectProfileString = GL.GetProjectOpenGLProfile();
+        OpenGLProfile profile = projectProfileString == "CORE" ? OpenGLProfile.CoreProfile : OpenGLProfile.CompatProfile;
+
+        Glfw.WindowHint(Hint.OpenGLProfile, profile);
         Glfw.WindowHint(Hint.DoubleBuffer, true);
         Glfw.WindowHint(Hint.Decorated, true);
         Glfw.WindowHint(Hint.Maximized, maximized);
@@ -65,6 +69,16 @@ public static class DisplayManager
 
         Glfw.MakeContextCurrent(window);
         GL.Import(Glfw.GetProcAddress);
+
+        var version = GL.glGetStringSafe(GL_VERSION);
+        var vendor = GL.glGetStringSafe(GL_VENDOR);
+        var renderer = GL.glGetStringSafe(GL_RENDERER);
+        var glslVersion = GL.glGetStringSafe(GL_SHADING_LANGUAGE_VERSION);
+
+        Logging.Log(LogLevel.Info, $"OpenGL version: {version}");
+        Logging.Log(LogLevel.Info, $"OpenGL vendor: {vendor}");
+        Logging.Log(LogLevel.Info, $"OpenGL renderer: {renderer}");
+        Logging.Log(LogLevel.Info, $"GLSL version: {glslVersion}");
 
         Glfw.SetWindowSizeLimits(window, minWidth, minHeight, Glfw.DontCare, Glfw.DontCare);
         return window;

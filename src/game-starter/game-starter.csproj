@@ -10,12 +10,37 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!-- GL.cs configuration options! -->
+
+    <!-- Profile: CORE/(COMPAT NOT IMPLEMENTED) -->
+    <OpenGLProfile>CORE</OpenGLProfile>
+
+    <!-- Version: Any valid OpenGL version from 1.0-4.6 (inclusive) -->
+    <OpenGLVersionMajor>3</OpenGLVersionMajor>
+    <OpenGLVersionMinor>3</OpenGLVersionMinor>
+
+    <!-- Defining exposed wrapper API (SAFE/UNSAFE/BOTH) -->
+    <!-- SAFE: Only safe functions are exposed -->
+    <!-- UNSAFE: Only unsafe functions are exposed -->
+    <!-- BOTH: Both safe and unsafe functions are exposed -->
+    <!-- ^ NOTE: Some functions (e.g. glGetString(GLEnum enum)) cannot have both an unsafe and safe -->
+    <!-- variant with the same name since they would have the same parameter type, and therefore the same signature, causing a collision. -->
+    <!-- In those cases (very few), both glGetStringSafe and glGetString are exposed, where the one with with the Safe suffix is  -->
+    <!-- the safe variant, and the one without the Safe suffix is the unsafe variant (allowing native API naming to take precedence for native API signature) -->
+    <OpenGLWrapperAPI>BOTH</OpenGLWrapperAPI>
+
+    <!-- Defining constants for compile time availability of APIs -->
+    <DefineConstants>$(DefineConstants);OGL_V_$(OpenGLVersionMajor)_$(OpenGLVersionMinor);OGL_P_$(OpenGLProfile);OGL_WRAPPER_API_$(OpenGLWrapperAPI)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <RootNamespace>GameStarter</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>preview</LangVersion>
     <ApplicationIcon>..\..\static\icon.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>
+    <LangVersion>11</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,35 +52,14 @@
     <PackageReference Include="DotGLFW" Version="1.0.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition=" '$(OS)' == 'WINDOWS_NT'">
-    <DefineConstants>_WINDOWS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(OS)' == 'OSX'">
-    <DefineConstants>_OSX</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <GameResourcesFiles Include="..\..\resources\**\*.*" />
     <GameModsFiles Include="..\..\mods\**\*.*" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(OS)' == 'WINDOWS_NT'">
-    <LibDLLs Include="$(ProjectDir)..\..\libs\win64\**\*.*" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(OS)' == 'OSX'">
-    <LibDLLs Include="$(ProjectDir)..\..\libs\osx\**\*.*" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\modules\Symphony\Symphony\Symphony.csproj" />
   </ItemGroup>
-
-  <Target Name="CopyDLLs" AfterTargets="Build">
-    <Message Text="Copying libs to output directory..." Importance="High" />
-    <Copy SourceFiles="@(LibDLLs)" DestinationFolder="$(OutDir)" />
-  </Target>
 
   <Target Name="CopyResourcesAndModsRelease" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
     <Message Text="Copying resources and mods to output directory..." Importance="High" />
