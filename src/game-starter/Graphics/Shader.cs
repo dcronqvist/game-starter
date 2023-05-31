@@ -1,29 +1,31 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
-using GameStarter.Content.Loading;
-using Symphony;
+using static DotGL.GL;
 
 namespace GameStarter.Graphics;
 
-public abstract class Shader : GLContentItem<string>
+public class Shader
 {
     public uint ShaderID { get; protected set; }
 
-    public Shader(IContentSource source, string content) : base(source, content)
+    public unsafe Shader(string source, uint shaderType)
     {
-    }
+        uint vs = glCreateShader(shaderType);
+        glShaderSource(vs, source);
+        glCompileShader(vs);
 
-    public override void InitGL(string newContent)
-    {
-        if (this.TryCreateShader(newContent, out uint shader, out string error))
-        {
-            this.ShaderID = shader;
-        }
-        else
-        {
-            throw new Exception(error);
-        }
-    }
+        int* status = stackalloc int[1];
+        glGetShaderiv(vs, GL_COMPILE_STATUS, status);
 
-    public abstract bool TryCreateShader(string code, out uint shaderID, [NotNullWhen(false)] out string error);
+        if (*status == GL_FALSE)
+        {
+            int* length = stackalloc int[1];
+            glGetShaderiv(vs, GL_INFO_LOG_LENGTH, length);
+            string info = glGetShaderInfoLog(vs, *length);
+
+            glDeleteShader(vs);
+            throw new Exception($"Failed to compile shader: {info}");
+        }
+
+        this.ShaderID = vs;
+    }
 }

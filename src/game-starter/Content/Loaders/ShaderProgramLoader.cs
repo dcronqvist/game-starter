@@ -19,13 +19,11 @@ public class ShaderProgramLoader : IContentItemLoader
             using (StreamReader sr = new StreamReader(stream))
             {
                 var json = sr.ReadToEnd();
-                var options = new JsonSerializerOptions()
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-                var programDescription = JsonSerializer.Deserialize<ShaderProgramDescription>(json, options);
 
-                var sp = new ShaderProgram(source, programDescription);
+                string vertexShaderSource = Utilities.GetSubstringBetweenDividers(json, "#VERTEX_BEGIN", "#VERTEX_END");
+                string fragmentShaderSource = Utilities.GetSubstringBetweenDividers(json, "#FRAGMENT_BEGIN", "#FRAGMENT_END");
+
+                var sp = new ShaderProgram(source, new ShaderProgramDescription() { VertexShader = vertexShaderSource, FragmentShader = fragmentShaderSource });
                 yield return await LoadEntryResult.CreateSuccessAsync(pathToItem, sp);
             }
         }

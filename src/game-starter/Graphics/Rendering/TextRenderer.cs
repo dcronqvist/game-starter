@@ -87,7 +87,7 @@ public static class TextRenderer
         float y = position.Y + measure.Y * scale.Y;
 
         var texture = font.TextureAtlas;
-        var shader = MainGame.ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/text/msdf/msdf.shader");
+        var shader = MainGame.ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/msdf.shader");
 
         for (int i = 0; i < text.Length; i++)
         {

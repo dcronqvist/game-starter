@@ -41,7 +41,7 @@ class MainGame : Game
         };
 
 #if DEBUG
-        var basePath = @"..\..\";
+        var basePath = @".";
 #elif RELEASE
         var basePath = Path.GetDirectoryName(System.AppContext.BaseDirectory);
 #endif
@@ -152,8 +152,8 @@ class MainGame : Game
     {
         Framebuffer.Clear(ColorF.Black);
 
-        var shader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/textures/texture.shader");
-        var primShader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/primitives/primitives.shader");
+        var shader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/texture.shader");
+        var primShader = ContentManager.GetContentItem<ShaderProgram>("resources:core/shaders/primitives.shader");
         var font1 = ContentManager.GetContentItem<Font>("resources:core/fonts/coders_crux.font");
         var texture = ContentManager.GetContentItem<Texture2D>("resources:core/textures/bomb.png");
 

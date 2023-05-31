@@ -31,4 +31,11 @@ public static class Utilities
         return new Vector2(dir.X * MathF.Cos(angle) + dir.Y * MathF.Sin(angle),
                            -dir.X * MathF.Sin(angle) + dir.Y * MathF.Cos(angle)) + pivot;
     }
+
+    public static string GetSubstringBetweenDividers(string source, string start, string end)
+    {
+        int startIndex = source.IndexOf(start) + start.Length;
+        int endIndex = source.IndexOf(end, startIndex);
+        return source.Substring(startIndex, endIndex - startIndex);
+    }
 }
