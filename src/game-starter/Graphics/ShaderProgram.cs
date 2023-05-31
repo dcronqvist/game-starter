@@ -1,4 +1,4 @@
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 using Symphony;
 using System.Numerics;
 using GameStarter.Content.Loading;
@@ -90,9 +90,9 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
     public unsafe void InitGL(VertexShader vs, FragmentShader fs)
     {
         // Create program
-        uint programID = GL.glCreateProgram();
-        GL.glAttachShader(programID, vs.ShaderID);
-        GL.glAttachShader(programID, fs.ShaderID);
+        uint programID = glCreateProgram();
+        glAttachShader(programID, vs.ShaderID);
+        glAttachShader(programID, fs.ShaderID);
 
         // Link program
         glLinkProgram(programID);
@@ -281,12 +281,12 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
     public void SetMatrix4x4(string name, Matrix4x4 matrix)
     {
-        glUniformMatrix4fv(glGetUniformLocation(ProgramID, name), 1, false, Utilities.GetMatrix4x4Values(matrix));
+        glUniformMatrix4fv(glGetUniformLocation(ProgramID, name), false, Utilities.GetMatrix4x4Values(matrix));
     }
 
     public void SetFloatArray(string name, float[] values)
     {
-        glUniform1fv(glGetUniformLocation(ProgramID, name), values.Length, values);
+        glUniform1fv(glGetUniformLocation(ProgramID, name), values);
     }
 
     public void SetTexture2D(int activeTexture, string name, Texture2D texture)

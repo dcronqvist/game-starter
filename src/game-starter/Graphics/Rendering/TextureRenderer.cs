@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Numerics;
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 
 namespace GameStarter.Graphics.Rendering;
 

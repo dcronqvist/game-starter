@@ -1,5 +1,4 @@
-using static GameStarter.Display.GL;
-
+using static DotGL.GL;
 using System.Numerics;
 using GameStarter.Display;
 using GameStarter.Graphics.Rendering;

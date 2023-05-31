@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Numerics;
 using GameStarter.Debugging;
 using DotGLFW;
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
@@ -30,16 +30,15 @@ public static class DisplayManager
 
         // Set some common hints for the OpenGL profile creation
         Glfw.WindowHint(Hint.ClientAPI, ClientAPI.OpenGLAPI);
-        Glfw.WindowHint(Hint.ContextVersionMajor, GL.GetProjectOpenGLVersionMajor());
-        Glfw.WindowHint(Hint.ContextVersionMinor, GL.GetProjectOpenGLVersionMinor());
+        Glfw.WindowHint(Hint.ContextVersionMajor, GetProjectOpenGLVersionMajor());
+        Glfw.WindowHint(Hint.ContextVersionMinor, GetProjectOpenGLVersionMinor());
         Glfw.WindowHint(Hint.OpenGLForwardCompat, true);
 
         Glfw.WindowHint(Hint.CocoaRetinaFramebuffer, false);
         Glfw.WindowHint(Hint.ScaleToMonitor, false);
 
-        string projectProfileString = GL.GetProjectOpenGLProfile();
+        string projectProfileString = GetProjectOpenGLProfile();
         OpenGLProfile profile = projectProfileString == "CORE" ? OpenGLProfile.CoreProfile : OpenGLProfile.CompatProfile;
-
         Glfw.WindowHint(Hint.OpenGLProfile, profile);
         Glfw.WindowHint(Hint.DoubleBuffer, true);
         Glfw.WindowHint(Hint.Decorated, true);
@@ -54,7 +53,7 @@ public static class DisplayManager
         TargetFPS = fps;
     }
 
-    private static Window CreateWindow(int width, int height, string title, int minWidth = 1280, int minHeight = 720)
+    private unsafe static Window CreateWindow(int width, int height, string title, int minWidth = 1280, int minHeight = 720)
     {
         // Create window, make the OpenGL context current on the thread, and import graphics functions
         Window window = Glfw.CreateWindow(width, height, title, Monitor.NULL, Window.NULL);
@@ -68,12 +67,12 @@ public static class DisplayManager
         Glfw.SetWindowPos(window, wx, wy);
 
         Glfw.MakeContextCurrent(window);
-        GL.Import(Glfw.GetProcAddress);
+        Import(Glfw.GetProcAddress);
 
-        var version = GL.glGetStringSafe(GL_VERSION);
-        var vendor = GL.glGetStringSafe(GL_VENDOR);
-        var renderer = GL.glGetStringSafe(GL_RENDERER);
-        var glslVersion = GL.glGetStringSafe(GL_SHADING_LANGUAGE_VERSION);
+        var version = glGetStringSafe(GL_VERSION);
+        var vendor = glGetStringSafe(GL_VENDOR);
+        var renderer = glGetStringSafe(GL_RENDERER);
+        var glslVersion = glGetStringSafe(GL_SHADING_LANGUAGE_VERSION);
 
         Logging.Log(LogLevel.Info, $"OpenGL version: {version}");
         Logging.Log(LogLevel.Info, $"OpenGL vendor: {vendor}");

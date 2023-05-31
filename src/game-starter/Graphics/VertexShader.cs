@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Symphony;
-using static GameStarter.Display.GL;
-
+using static DotGL.GL;
 namespace GameStarter.Graphics;
 
 public class VertexShader : Shader

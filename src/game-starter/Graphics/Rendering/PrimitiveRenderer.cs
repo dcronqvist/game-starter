@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 using System.Numerics;
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 
 namespace GameStarter.Graphics.Rendering;
 

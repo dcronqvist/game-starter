@@ -11,7 +11,7 @@ using GameStarter.Input;
 using NLua;
 using LogiX.Rendering;
 using Symphony;
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 using GameStarter.Scripts;
 
 namespace GameStarter;

@@ -6,7 +6,7 @@ using System.Numerics;
 using GameStarter.Content.Loading;
 using StbImageSharp;
 using Symphony;
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 
 namespace GameStarter.Graphics;
 

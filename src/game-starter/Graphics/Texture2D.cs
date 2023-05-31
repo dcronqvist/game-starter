@@ -8,7 +8,7 @@ using GameStarter.Display;
 using GameStarter.Graphics;
 using StbImageSharp;
 using Symphony;
-using static GameStarter.Display.GL;
+using static DotGL.GL;
 
 namespace GameStarter.Graphics;
 
