@@ -15,7 +15,7 @@ public struct ShaderVariable
 {
     public string Name { get; set; }
     public int Location { get; set; }
-    public uint Type { get; set; }
+    public int Type { get; set; }
     public string TypeName { get => this.GetTypeAsString(); }
 
     private string GetTypeAsString()
@@ -182,7 +182,7 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
         for (uint i = 0; i < *uniformAmount; i++)
         {
-            string name = glGetActiveUniform(this.ProgramID, i, 16, out int size, out uint type);
+            string name = glGetActiveUniform(this.ProgramID, i, 16, out int size, out int type);
             var variable = new ShaderVariable()
             {
                 Name = name,
@@ -204,7 +204,7 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
         for (uint i = 0; i < *attribAmount; i++)
         {
-            string name = glGetActiveAttrib(this.ProgramID, i, 16, out int size, out uint type);
+            string name = glGetActiveAttrib(this.ProgramID, i, 16, out int size, out int type);
             var variable = new ShaderVariable()
             {
                 Name = name,
@@ -254,9 +254,9 @@ public class ShaderProgram : GLContentItem<ShaderProgramDescription>
 
     public void SetTexture2D(int activeTexture, string name, Texture2D texture)
     {
-        glActiveTexture(GL_TEXTURE0 + (uint)activeTexture);
+        glActiveTexture(GL_TEXTURE0 + activeTexture);
         glBindTexture(GL_TEXTURE_2D, texture.GLID);
-        glUniform1i(glGetUniformLocation(ProgramID, name), (int)activeTexture);
+        glUniform1i(glGetUniformLocation(ProgramID, name), activeTexture);
     }
 
     public void SetBool(string name, bool value)

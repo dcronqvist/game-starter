@@ -17,10 +17,10 @@ project_files += $(wildcard src/**/*.csproj)
 # MAIN TARGETS
 
 .PHONY: debug run clean
-debug: src/$(project_name_snake)/bin/Debug/net7.0/$(project_name_snake).dll
+debug: src/$(project_name_snake)/bin/Debug/net7.0/$(project_name_snake).dll $(project_files)
 	@Start-Process "vscode-insiders://fabiospampinato.vscode-debug-launcher/launch?args=$(encoded_debug_args)"
 
-run: src/$(project_name_snake)/bin/Release/net7.0/$(project_name_snake).dll
+run: src/$(project_name_snake)/bin/Release/net7.0/$(project_name_snake).dll $(project_files)
 	@dotnet run --project src/$(project_name_snake)/$(project_name_snake).csproj --configuration Release
 
 clean:

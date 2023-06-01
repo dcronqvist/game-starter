@@ -7,7 +7,7 @@ public class Shader
 {
     public uint ShaderID { get; protected set; }
 
-    public unsafe Shader(string source, uint shaderType)
+    public unsafe Shader(string source, int shaderType)
     {
         uint vs = glCreateShader(shaderType);
         glShaderSource(vs, source);

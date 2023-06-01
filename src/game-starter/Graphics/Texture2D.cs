@@ -19,15 +19,15 @@ public class Texture2D : GLContentItem<ImageResult>
     public int Height => this.Content.Height;
     public Vector2 Size => new Vector2(this.Width, this.Height);
 
-    private uint _minFilter = GL_LINEAR;
-    private uint _magFilter = GL_NEAREST;
+    private int _minFilter = GL_LINEAR;
+    private int _magFilter = GL_NEAREST;
 
     public Texture2D(IContentSource source, ImageResult content) : base(source, content)
     {
 
     }
 
-    public Texture2D(IContentSource source, ImageResult content, uint minFilter, uint magFilter) : base(source, content)
+    public Texture2D(IContentSource source, ImageResult content, int minFilter, int magFilter) : base(source, content)
     {
         this._minFilter = minFilter;
         this._magFilter = magFilter;
@@ -66,11 +66,11 @@ public class Texture2D : GLContentItem<ImageResult>
         }
 
         // Set a bunch of texture parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (int)wrapS);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (int)wrapT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)_minFilter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)_magFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _magFilter);
 
         // Generate mip maps
         //glGenerateMipmap(GL_TEXTURE_2D);
